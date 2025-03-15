@@ -34,6 +34,7 @@ export function AuthProvider({ children }) {
     }
     setLoading(false); // Done checking the token
   }, []);
+  
 
   const login = (token) => {
     localStorage.setItem("token", token);
