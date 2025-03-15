@@ -21,8 +21,12 @@ export default function Login() {
 
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", formData);
-      login(res.data.token); // ✅ Use login function to store JWT
-      router.push("/dashboard"); // ✅ Redirect after login
+
+      // Use the login function from AuthContext to set the user state
+      login(res.data.token); // This should store user info in context
+
+      // Redirect the user to the dashboard page after successful login
+      router.push("/dashboard");
     } catch (err) {
       setError("Invalid credentials. Please try again.");
     } finally {
