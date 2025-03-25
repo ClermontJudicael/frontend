@@ -7,20 +7,25 @@ export async function GET(request) {
       date: searchParams.get('date'),
       location: searchParams.get('location'),
       category: searchParams.get('category'),
-      search: searchParams.get('search')
+      search: searchParams.get('search'),
     };
 
-    console.log('Filtres reçus:', filters);
-    console.log('URL de l\'API:', `${process.env.NEXT_PUBLIC_API_URL}/api/events`);
+    // Vérifie si l'URL de l'API est définie
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) {
+      throw new Error('NEXT_PUBLIC_API_URL est undefined. Vérifiez votre fichier .env.local.');
+    }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?${new URLSearchParams(filters)}`, {
+    console.log('URL de l\'API:', `${apiUrl}/api/events`);
+
+    const response = await fetch(`${apiUrl}/api/events?${new URLSearchParams(filters)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
       cache: 'no-store'
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error('Erreur de réponse:', response.status, errorData);
@@ -30,10 +35,8 @@ export async function GET(request) {
     const data = await response.json();
     console.log('Réponse du backend:', data);
 
-    // Si data n'est pas un tableau, on le convertit en tableau
-    const events = Array.isArray(data) ? data : [data];
-    
-    return NextResponse.json(events);
+    return NextResponse.json(Array.isArray(data) ? data : [data]);
+
   } catch (error) {
     console.error('Erreur dans la route API:', error);
     return NextResponse.json(
@@ -41,4 +44,4 @@ export async function GET(request) {
       { status: 500 }
     );
   }
-} 
+}

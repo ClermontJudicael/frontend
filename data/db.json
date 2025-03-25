@@ -1,0 +1,85 @@
+{
+  "articles": [
+    {
+      "id": 1,
+      "titre": "Les 10 meilleurs jeux de l'année",
+      "contenu": "Donec tempus molestie nisl in euismod. Quisque vel tortor.",
+      "auteur": "Jean Dupont",
+      "date": "2018-01-01",
+      "user_id": 1,
+      "lienImage": "/series/mandalorian.jpg"
+    },
+    {
+      "id": 2,
+      "titre": "Les héros de l'année",
+      "contenu": "Donec tempus molestie nisl in euismod. Quisque.",
+      "auteur": "Jean Dupont",
+      "date": "2018-01-01",
+      "user_id": 1,
+      "lienImage": "/series/wanda.png"
+    },
+    {
+      "id": 3,
+      "titre": "Les gens de l'année",
+      "contenu": "Donec tempus molestie nisl in euismod.",
+      "auteur": "Jean Dupont",
+      "date": "2018-01-01",
+      "user_id": 1,
+      "lienImage": "/series/star-trek.jpg"
+    },
+    {
+      "id": 3,
+      "titre": "Les gens de l'année",
+      "contenu": "Donec tempus molestie nisl in euismod.",
+      "auteur": "Jean Dupont",
+      "date": "2018-01-01",
+      "user_id": 1,
+      "lienImage": "/series/penthouses.jpg"
+    },
+    {
+      "id": 3,
+      "titre": "Les gens de l'année",
+      "contenu": "Donec tempus molestie nisl in euismod.",
+      "auteur": "Jean Dupont",
+      "date": "2018-01-01",
+      "user_id": 1,
+      "lienImage": "/series/start-trek.jpeg"
+    },
+    {
+      "id": 3,
+      "titre": "Les gens de l'année",
+      "contenu": "Donec tempus molestie nisl in euismod.",
+      "auteur": "Jean Dupont",
+      "date": "2018-01-01",
+      "user_id": 1,
+      "lienImage": "/series/stranger-thing.jpg"
+    },
+    {
+      "id": 3,
+      "titre": "Les gens de l'année",
+      "contenu": "Donec tempus molestie nisl in euismod.",
+      "auteur": "Jean Dupont",
+      "date": "2018-01-01",
+      "user_id": 1,
+      "lienImage": "/series/start-trek.jpeg"
+    },
+    {
+      "id": 3,
+      "titre": "Les gens de l'année",
+      "contenu": "Donec tempus molestie nisl in euismod.",
+      "auteur": "Jean Dupont",
+      "date": "2018-01-01",
+      "user_id": 1,
+      "lienImage": "/series/the-falcon.webp"
+    },
+    {
+      "id": 3,
+      "titre": "Les gens de l'année",
+      "contenu": "Donec tempus molestie nisl in euismod.",
+      "auteur": "Jean Dupont",
+      "date": "2018-01-01",
+      "user_id": 1,
+      "lienImage": "/series/wanda.webp"
+    }
+  ]
+}
