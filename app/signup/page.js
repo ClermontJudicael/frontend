@@ -44,18 +44,18 @@ export default function Signup() {
               placeholder="Your username"
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border text-black border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
           <div>
-            <label className="block text-gray-700">Enter Your Email</label>
+            <label className="block text-g-700">Enter Your Email</label>
             <input
               type="email"
               name="email"
               placeholder="email@gmail.com"
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border text-black border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
           <div>
@@ -66,7 +66,7 @@ export default function Signup() {
               placeholder="Enter Your Password"
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border text-black border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
           <div>
@@ -77,7 +77,7 @@ export default function Signup() {
               placeholder="Confirm Your Password"
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full text-black border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
           <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">

@@ -20,11 +20,7 @@ export default function Login() {
 
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", formData);
-
-      // Use the login function from AuthContext to set the user state
-      login(res.data.token); // This should store user info in context
-
-      // Redirect the user to the dashboard page after successful login
+      login(res.data.token);
       router.push("/dashboard");
     } catch (err) {
       setError("Invalid credentials. Please try again.");
@@ -34,40 +30,41 @@ export default function Login() {
   };
 
   return (
+    
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg p-8 w-96">
         <h2 className="text-2xl font-semibold text-center">Sign in</h2>
-        <p className="text-gray-500 text-center mb-4">Sign in to access your account</p>
+        <p className="text-gray-600 text-center mb-4">Sign in to access your account</p>
 
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700">Enter Your Email</label>
+            <label className="block text-gray-600">Enter Your Email</label>
             <input
               type="email"
               name="email"
               placeholder="email@gmail.com"
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg p-2 text-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
           <div>
-            <label className="block text-gray-700">Enter Your Password</label>
+            <label className="block text-gray-600">Enter Your Password</label>
             <input
               type="password"
               name="password"
               placeholder="Enter Your Password"
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg p-2 text-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400"
+            className="w-full bg-blue-600 py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
@@ -77,7 +74,7 @@ export default function Login() {
           <a href="#" className="hover:text-blue-600">Forgot your password?</a>
         </div>
 
-        <p className="text-sm text-center mt-4">
+        <p className="text-sm text-center mt-4 text-gray-600">
           Don't have an account?{" "}
           <a href="/signup" className="text-blue-600 font-semibold hover:underline">Sign up</a>
         </p>
