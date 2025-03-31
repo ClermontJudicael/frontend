@@ -2,43 +2,58 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request) {
   try {
+    // 1. Préparation des paramètres
     const { searchParams } = new URL(request.url);
-    const filters = {
-      date: searchParams.get('date'),
-      location: searchParams.get('location'),
-      category: searchParams.get('category'),
-      search: searchParams.get('search')
-    };
+    const filters = Object.fromEntries(searchParams.entries());
 
-    console.log('Filtres reçus:', filters);
-    console.log('URL de l\'API:', `${process.env.NEXT_PUBLIC_API_URL}/api/events`);
+    // 2. Construction de l'URL de l'API backend
+    const backendUrl = new URL(
+        `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/events`
+    );
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events?${new URLSearchParams(filters)}`, {
-      method: 'GET',
+    // 3. Ajout des paramètres de filtre
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== 'undefined') {
+        backendUrl.searchParams.append(key, value);
+      }
+    });
+
+    const response = await fetch(backendUrl, {
       headers: {
         'Content-Type': 'application/json',
       },
-      cache: 'no-store'
+      next: { revalidate: 60 } // Cache pendant 60 secondes
     });
-    
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Erreur de réponse:', response.status, errorData);
-      throw new Error(`Erreur HTTP: ${response.status} - ${errorData.message || 'Erreur serveur'}`);
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { message: await response.text() };
+      }
+      throw new Error(errorData.message || `Erreur ${response.status}`);
     }
 
+    // 6. Traitement de la réponse
     const data = await response.json();
-    console.log('Réponse du backend:', data);
+    const results = Array.isArray(data) ? data : data.events || [data];
 
-    // Si data n'est pas un tableau, on le convertit en tableau
-    const events = Array.isArray(data) ? data : [data];
-    
-    return NextResponse.json(events);
+    // 7. Retour de la réponse
+    return NextResponse.json(results, {
+      headers: {
+        'Cache-Control': 'public, max-age=60',
+      },
+    });
+
   } catch (error) {
-    console.error('Erreur dans la route API:', error);
+    console.error('[API Error]', error.message);
     return NextResponse.json(
-      { message: error.message || 'Erreur lors de la récupération des événements' },
-      { status: 500 }
+        {
+          error: error.message || 'Erreur serveur',
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        },
+        { status: error.status || 500 }
     );
   }
-} 
+}
