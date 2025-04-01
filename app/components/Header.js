@@ -33,11 +33,15 @@ export default function Header() {
                   Dashboard
                 </Link>
                 <button
-                  onClick={logout}
+                  onClick={async () => {
+                    await logout(); // Ensure logout completes
+                    window.location.href = "/"; // Redirect to home page
+                  }}
                   className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
                 >
                   Déconnexion
                 </button>
+
               </>
             ) : (
               <>
