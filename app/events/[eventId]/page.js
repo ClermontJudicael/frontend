@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { fetchEventById } from '../../lib/api';
+import { fetchEventById, fetchEventTickets } from '../../lib/api';
 import Image from 'next/image';
 
 export default function EventDetailPage() {
@@ -18,26 +18,49 @@ export default function EventDetailPage() {
         const loadEventData = async () => {
             try {
                 setIsLoading(true);
-                const eventData = await fetchEventById(eventId);
+                setError(null);
 
-                if (!eventData) {
-                    throw new Error('Événement non trouvé');
+                console.log('[debug] eventId avant traitement:', eventId);
+
+                // Conversion et validation
+                const id = Number(eventId);
+                if (isNaN(id)) {
+                    throw new Error(`ID invalide: ${eventId} (type: ${typeof eventId})`);
                 }
+
+                const [eventData, ticketsData] = await Promise.all([
+                    fetchEventById(id).catch(e => {
+                        console.error('Erreur fetchEventById:', e);
+                        throw e;
+                    }),
+                    fetchEventTickets(id).catch(e => {
+                        console.error('Erreur fetchEventTickets:', e);
+                        return []; // Retourne un tableau vide si erreur
+                    })
+                ]);
 
                 setEvent(eventData);
-                setTickets(eventData.tickets || []);
-            } catch (err) {
-                console.error('Error loading event:', err);
-                setError(err.message);
-                if (err.message.includes('404') || err.message.includes('non trouvé')) {
-                    router.push('/events');
-                }
+                setTickets(ticketsData);
+
+            } catch (error) {
+                console.error('Erreur complète dans loadEventData:', {
+                    eventId,
+                    error: {
+                        name: error.name,
+                        message: error.message,
+                        stack: error.stack
+                    }
+                });
+                setError(error.message || 'Erreur lors du chargement des données');
             } finally {
                 setIsLoading(false);
             }
         };
 
-        if (eventId) loadEventData();
+        if (eventId) {
+            console.log('[debug] Début du chargement pour eventId:', eventId);
+            loadEventData();
+        }
     }, [eventId, router]);
 
     const handleReservation = () => {

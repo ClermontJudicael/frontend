@@ -176,11 +176,65 @@ export async function updateEvent(id, updateData) {
     }
 }
 
+//fect tickets par evenement
+export async function fetchEventTickets(eventId) {
+    try {
+        console.log('[debug] Tentative de récupération des tickets pour eventId:', eventId);
+
+        // Validation robuste de l'ID
+        const id = parseInt(eventId, 10);
+        if (isNaN(id)) {
+            const error = new Error(`ID d'événement invalide: ${eventId} (type: ${typeof eventId})`);
+            error.name = 'InvalidEventIdError';
+            throw error;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/events/${id}/tickets`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+            },
+            credentials: 'include'
+        });
+
+        console.log('[debug] Réponse du serveur:', {
+            status: response.status,
+            ok: response.ok
+        });
+
+        if (!response.ok) {
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch {
+                errorData = { message: await response.text() };
+            }
+            const error = new Error(errorData.message || `Erreur HTTP ${response.status}`);
+            error.status = response.status;
+            throw error;
+        }
+
+        const data = await response.json();
+        console.log('[debug] Tickets reçus:', data);
+        return data;
+    } catch (error) {
+        console.error('Erreur détaillée dans fetchEventTickets:', {
+            input: eventId,
+            error: {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            }
+        });
+        throw error;
+    }
+}
+
 export default {
     fetchEvents,
     fetchEventById,
     createEvent,
     createReservation,
     processPayment,
-    updateEvent
+    updateEvent,
+    fetchEventTickets
 };
