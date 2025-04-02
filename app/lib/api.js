@@ -179,52 +179,28 @@ export async function updateEvent(id, updateData) {
 //fect tickets par evenement
 export async function fetchEventTickets(eventId) {
     try {
-        console.log('[debug] Tentative de récupération des tickets pour eventId:', eventId);
+        // Conversion et validation rigoureuse
+        const parsedId = parseInt(eventId, 10);
 
-        // Validation robuste de l'ID
-        const id = parseInt(eventId, 10);
-        if (isNaN(id)) {
-            const error = new Error(`ID d'événement invalide: ${eventId} (type: ${typeof eventId})`);
-            error.name = 'InvalidEventIdError';
-            throw error;
+        if (isNaN(parsedId) || !Number.isInteger(parsedId)) {
+            console.error("ID invalide reçu:", eventId, typeof eventId);
+            throw new Error("L'ID de l'événement doit être un nombre entier");
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/events/${id}/tickets`, {
+        const response = await fetch(`${API_BASE_URL}/api/events/${parsedId}/tickets`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-            },
-            credentials: 'include'
-        });
-
-        console.log('[debug] Réponse du serveur:', {
-            status: response.status,
-            ok: response.ok
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
         });
 
         if (!response.ok) {
-            let errorData;
-            try {
-                errorData = await response.json();
-            } catch {
-                errorData = { message: await response.text() };
-            }
-            const error = new Error(errorData.message || `Erreur HTTP ${response.status}`);
-            error.status = response.status;
-            throw error;
+            const errorData = await response.json();
+            throw new Error(errorData.message || `Erreur ${response.status}`);
         }
 
-        const data = await response.json();
-        console.log('[debug] Tickets reçus:', data);
-        return data;
+        return await response.json();
     } catch (error) {
-        console.error('Erreur détaillée dans fetchEventTickets:', {
-            input: eventId,
-            error: {
-                name: error.name,
-                message: error.message,
-                stack: error.stack
-            }
-        });
+        console.error("Erreur fetchEventTickets:", error);
         throw error;
     }
 }
@@ -236,5 +212,5 @@ export default {
     createReservation,
     processPayment,
     updateEvent,
-    fetchEventTickets
+    fetchEventTickets,
 };
