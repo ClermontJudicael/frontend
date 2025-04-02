@@ -176,15 +176,17 @@ export async function updateEvent(id, updateData) {
     }
 }
 
-//fect tickets par evenement
 export async function fetchEventTickets(eventId) {
     try {
-        // Conversion et validation rigoureuse
-        const parsedId = parseInt(eventId, 10);
+        if (!eventId) {
+            throw new Error("L'ID de l'événement est manquant !");
+        }
+
+        const parsedId = Number(eventId); // Convertit correctement en nombre
 
         if (isNaN(parsedId) || !Number.isInteger(parsedId)) {
             console.error("ID invalide reçu:", eventId, typeof eventId);
-            throw new Error("L'ID de l'événement doit être un nombre entier");
+            throw new Error("L'ID de l'événement doit être un nombre entier valide");
         }
 
         const response = await fetch(`${API_BASE_URL}/api/events/${parsedId}/tickets`, {
@@ -204,6 +206,7 @@ export async function fetchEventTickets(eventId) {
         throw error;
     }
 }
+
 
 export default {
     fetchEvents,
