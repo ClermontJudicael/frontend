@@ -1,8 +1,26 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { fetchEventById } from '../../lib/api';
+import { fetchEventById, fetchEventTickets } from '../../lib/api';
 import Image from 'next/image';
+
+// Icon components
+function CalendarIcon(props) {
+    return (
+        <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+    );
+}
+
+function LocationIcon(props) {
+    return (
+        <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+    );
+}
 
 export default function EventDetailPage() {
     const router = useRouter();
@@ -18,26 +36,49 @@ export default function EventDetailPage() {
         const loadEventData = async () => {
             try {
                 setIsLoading(true);
-                const eventData = await fetchEventById(eventId);
+                setError(null);
 
-                if (!eventData) {
-                    throw new Error('Événement non trouvé');
+                console.log('[debug] eventId avant traitement:', eventId);
+
+                // Conversion et validation de eventId
+                const id = Number(eventId);
+                if (isNaN(id)) {
+                    throw new Error(`ID invalide: ${eventId} (type: ${typeof eventId})`);
                 }
+
+                const [eventData, ticketsData] = await Promise.all([
+                    fetchEventById(id).catch(e => {
+                        console.error('Erreur fetchEventById:', e);
+                        throw e;
+                    }),
+                    fetchEventTickets(id).catch(e => {
+                        console.error('Erreur fetchEventTickets:', e);
+                        return [];
+                    })
+                ]);
 
                 setEvent(eventData);
-                setTickets(eventData.tickets || []);
-            } catch (err) {
-                console.error('Error loading event:', err);
-                setError(err.message);
-                if (err.message.includes('404') || err.message.includes('non trouvé')) {
-                    router.push('/events');
-                }
+                setTickets(ticketsData);
+
+            } catch (error) {
+                console.error('Erreur complète dans loadEventData:', {
+                    eventId,
+                    error: {
+                        name: error.name,
+                        message: error.message,
+                        stack: error.stack
+                    }
+                });
+                setError(error.message || 'Erreur lors du chargement des données');
             } finally {
                 setIsLoading(false);
             }
         };
 
-        if (eventId) loadEventData();
+        if (eventId) {
+            console.log('[debug] Début du chargement pour eventId:', eventId);
+            loadEventData();
+        }
     }, [eventId, router]);
 
     const handleReservation = () => {
@@ -225,22 +266,5 @@ export default function EventDetailPage() {
                 </div>
             </div>
         </div>
-    );
-}
-
-function CalendarIcon(props) {
-    return (
-        <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-    );
-}
-
-function LocationIcon(props) {
-    return (
-        <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
     );
 }

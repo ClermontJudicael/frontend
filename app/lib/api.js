@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 /**
@@ -26,6 +27,34 @@ export async function fetchEvents(filters = {}) {
       throw new Error(
         errorData.message || "Échec du chargement des événements"
       );
+=======
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+export async function fetchEvents({ filters = {}, range = [0, 8] } = {}) {
+    const url = new URL(`${API_BASE_URL}/api/events/filter/by-status`);
+    
+    // Ajoute les paramètres de requête
+    url.searchParams.append('filter', JSON.stringify({
+        ...filters,
+        status: 'published' // Toujours forcer published pour le front public
+    }));
+    url.searchParams.append('range', JSON.stringify(range));
+
+    try {
+        const response = await fetch(url.toString());
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Échec du chargement des événements');
+        }
+
+        const events = await response.json();
+        const total = parseInt(response.headers.get('X-Total-Count') || events.length);
+        
+        return { events, total };
+    } catch (error) {
+        console.error('Erreur dans fetchEvents:', error);
+        throw error;
+>>>>>>> eca68c9a7e6b611680b6b441e30f47d15a0ace4b
     }
 
     return await response.json();
@@ -63,7 +92,6 @@ export async function lastEvents() {
     throw error;
   }
 }
-
 /**
  * Récupère un événement spécifique par son ID
  * @param {string} id - ID de l'événement
@@ -205,7 +233,40 @@ export async function updateEvent(id, updateData) {
   }
 }
 
+export async function fetchEventTickets(eventId) {
+    try {
+        if (!eventId) {
+            throw new Error("L'ID de l'événement est manquant !");
+        }
+
+        const parsedId = Number(eventId); // Convertit correctement en nombre
+
+        if (isNaN(parsedId) || !Number.isInteger(parsedId)) {
+            console.error("ID invalide reçu:", eventId, typeof eventId);
+            throw new Error("L'ID de l'événement doit être un nombre entier valide");
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/events/${parsedId}/tickets`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `Erreur ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Erreur fetchEventTickets:", error);
+        throw error;
+    }
+}
+
+
 export default {
+<<<<<<< HEAD
   fetchEvents,
   fetchEventById,
   createEvent,
@@ -213,3 +274,13 @@ export default {
   processPayment,
   updateEvent,
 };
+=======
+    fetchEvents,
+    fetchEventById,
+    createEvent,
+    createReservation,
+    processPayment,
+    updateEvent,
+    fetchEventTickets,
+};
+>>>>>>> eca68c9a7e6b611680b6b441e30f47d15a0ace4b

@@ -18,7 +18,7 @@ export default function Header() {
           </Link>
 
           {/* Menu Desktop */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex space-x-8 items-center">
             <Link href="/" className="text-gray-600 hover:text-blue-600 transition-colors">
               Accueil
             </Link>

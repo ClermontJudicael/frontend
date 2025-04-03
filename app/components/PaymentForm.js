@@ -17,11 +17,15 @@ export default function PaymentForm({ booking, onSuccess, onBack }) {
         setIsProcessing(true);
 
         try {
-            const receipt = await processPayment({
-                ...booking,
+            const response = await processPayment({
+                userId: user.id,
+                eventId: booking.eventId,
+                ticketId: booking.ticketId,
+                quantity: booking.quantity,
                 paymentDetails: paymentData
             });
-            onSuccess(receipt);
+
+            onSuccess(response.receipt);
         } catch (err) {
             setError(err.message || 'Le paiement a échoué');
         } finally {

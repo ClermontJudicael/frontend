@@ -4,23 +4,34 @@ import EventCard from '../components/EventCard';
 import EventFilters from '../components/EventFilters';
 import { fetchEvents } from '../lib/api';
 import { useState, useEffect } from 'react';
+import Pagination from '../components/Pagination';
 
 export default function EventsPage() {
-    const [events, setEvents] = useState([]);
+    const [data, setData] = useState({ events: [], total: 0 });
     const [filters, setFilters] = useState({});
+    const [range, setRange] = useState([0, 8]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         async function loadEvents() {
+            setIsLoading(true);
             try {
-                const data = await fetchEvents(filters);
-                setEvents(data);
+                const result = await fetchEvents({ filters, range });
+                setData(result);
             } catch (error) {
                 console.error("Erreur de chargement:", error);
-                setEvents([]); // Réinitialiser en cas d'erreur
+                setData({ events: [], total: 0 });
+            } finally {
+                setIsLoading(false);
             }
         }
         loadEvents();
-    }, [filters]);
+    }, [filters, range]);
+
+    const handlePageChange = (newPage) => {
+        const itemsPerPage = range[1] - range[0] + 1;
+        setRange([(newPage - 1) * itemsPerPage, newPage * itemsPerPage - 1]);
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -35,16 +46,35 @@ export default function EventsPage() {
                     <EventFilters onFilterChange={setFilters} />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {events.map((event) => (
-                        <EventCard key={event.id} event={event} />
-                    ))}
-                </div>
-
-                {events.length === 0 && (
-                    <div className="text-center py-12">
-                        <p className="text-gray-500 text-lg">Aucun événement disponible pour le moment</p>
+                {isLoading ? (
+                    <div className="flex justify-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
                     </div>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {data.events.map((event) => (
+                                <EventCard key={event.id} event={event} />
+                            ))}
+                        </div>
+
+                        {data.events.length === 0 && (
+                            <div className="text-center py-12">
+                                <p className="text-gray-500 text-lg">Aucun événement disponible pour le moment</p>
+                            </div>
+                        )}
+
+                        {data.total > 0 && (
+                            <div className="mt-8">
+                                <Pagination 
+                                    totalItems={data.total}
+                                    itemsPerPage={range[1] - range[0] + 1}
+                                    currentPage={Math.floor(range[0] / (range[1] - range[0] + 1)) + 1}
+                                    onPageChange={handlePageChange}
+                                />
+                            </div>
+                        )}
+                    </>
                 )}
             </main>
         </div>
