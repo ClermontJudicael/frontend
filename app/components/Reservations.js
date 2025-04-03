@@ -15,7 +15,6 @@ const Reservations = () => {
         const res = await fetch("/api/reservations/my", {
           headers: {
             "Content-Type": "application/json",
-            // Send the token if your backend expects it in the Authorization header
             "Authorization": `Bearer ${token}`,
           },
         });

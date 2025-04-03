@@ -10,12 +10,10 @@ export default function PaymentForm({ booking, onSuccess, onBack }) {
     });
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState('');
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setIsProcessing(true);
-
         try {
             const response = await processPayment({
                 userId: user.id,
