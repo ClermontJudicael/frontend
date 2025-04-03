@@ -1,6 +1,6 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
-import PaymentForm from '@/components/PaymentForm';
+import PaymentForm from '../components/PaymentForm';
 
 export default function CheckoutPage() {
     const searchParams = useSearchParams();
