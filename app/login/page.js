@@ -5,7 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 
-export default function Login() {
+export default function Connexion() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,39 +23,38 @@ export default function Login() {
       login(res.data.token);
       router.push("/dashboard");
     } catch (err) {
-      setError("Invalid credentials. Please try again.");
+      setError("Identifiants invalides. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    
-    <div className="flex justify-center items-center h-screen bg-gray-100">
+    <div className="flex justify-center items-center h-screen bg-[#EEF2FF]">
       <div className="bg-white shadow-lg rounded-lg p-8 w-96">
-        <h2 className="text-2xl font-semibold text-center">Sign in</h2>
-        <p className="text-gray-600 text-center mb-4">Sign in to access your account</p>
+        <h2 className="text-2xl font-semibold text-center">Connexion</h2>
+        <p className="text-gray-600 text-center mb-4">Connectez-vous pour accéder à votre compte</p>
 
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-600">Enter Your Email</label>
+            <label className="block text-gray-600">Adresse e-mail</label>
             <input
               type="email"
               name="email"
-              placeholder="email@gmail.com"
+              placeholder="exemple@gmail.com"
               onChange={handleChange}
               required
               className="w-full border border-gray-300 rounded-lg p-2 text-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
           <div>
-            <label className="block text-gray-600">Enter Your Password</label>
+            <label className="block text-gray-600">Mot de passe</label>
             <input
               type="password"
               name="password"
-              placeholder="Enter Your Password"
+              placeholder="Entrez votre mot de passe"
               onChange={handleChange}
               required
               className="w-full border border-gray-300 rounded-lg p-2 text-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -66,17 +65,17 @@ export default function Login() {
             disabled={loading}
             className="w-full bg-blue-600 py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Connexion en cours..." : "Se connecter"}
           </button>
         </form>
 
         <div className="flex justify-between text-sm text-gray-600 mt-4">
-          <a href="#" className="hover:text-blue-600">Forgot your password?</a>
+          <a href="#" className="hover:text-blue-600">Mot de passe oublié ?</a>
         </div>
 
         <p className="text-sm text-center mt-4 text-gray-600">
-          Don't have an account?{" "}
-          <a href="/signup" className="text-blue-600 font-semibold hover:underline">Sign up</a>
+          Vous n'avez pas de compte ?{" "}
+          <a href="/signup" className="text-blue-600 font-semibold hover:underline">Inscrivez-vous</a>
         </p>
       </div>
     </div>
