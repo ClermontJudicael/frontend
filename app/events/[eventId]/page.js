@@ -242,8 +242,8 @@ export default function EventDetailPage() {
                                                 </span>
                                             </div>
                                             <button
+                                                onClick={() => router.push(`/checkout?eventId=${eventId}&ticketId=${selectedTicket.id}&quantity=${quantity}`)}
                                                 className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                                                onClick={handleReservation}
                                             >
                                                 Réserver maintenant
                                             </button>
@@ -253,7 +253,7 @@ export default function EventDetailPage() {
                             </>
                         ) : (
                             <div className="text-center py-4">
-                                <p className="text-gray-500">Aucun billet disponible pour cet événement</p>
+                            <p className="text-gray-500">Aucun billet disponible pour cet événement</p>
                                 <button
                                     onClick={() => router.push('/events')}
                                     className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"

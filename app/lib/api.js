@@ -2,17 +2,21 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 /**
  * Récupère la liste des événements avec filtres optionnels
- * @param {Object} filters - Les filtres de recherche
- * @returns {Promise<Array>} Liste des événements
+ * @param {Object} options - Options de recherche (filters et range)
+ * @returns {Promise<{events: Array, total: number}>} Liste des événements et total
  */
-export async function fetchEvents(filters = {}) {
-  const url = new URL(`${API_BASE_URL}/api/events`);
-  console.log("URL");
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      url.searchParams.append(key, value);
-    }
-  });
+export async function fetchEvents({ filters = {}, range = [0, 8] } = {}) {
+  const url = new URL(`${API_BASE_URL}/api/events/filter/by-status`);
+
+  // Ajoute les paramètres de requête
+  url.searchParams.append(
+    "filter",
+    JSON.stringify({
+      ...filters,
+      status: "published", // Toujours forcer published pour le front public
+    })
+  );
+  url.searchParams.append("range", JSON.stringify(range));
 
   try {
     const response = await fetch(url.toString(), {
@@ -28,7 +32,12 @@ export async function fetchEvents(filters = {}) {
       );
     }
 
-    return await response.json();
+    const events = await response.json();
+    const total = parseInt(
+      response.headers.get("X-Total-Count") || events.length
+    );
+
+    return { events, total };
   } catch (error) {
     console.error("Erreur dans fetchEvents:", error);
     throw error;
@@ -36,12 +45,11 @@ export async function fetchEvents(filters = {}) {
 }
 
 /**
- * Récupère les 3 derniers des événements avec filtres optionnels
+ * Récupère les 3 derniers événements
  * @returns {Promise<Array>} Liste des événements
  */
 export async function lastEvents() {
   const url = new URL(`${API_BASE_URL}/api/events/last-date`);
-  console.log("URL");
 
   try {
     const response = await fetch(url.toString(), {
@@ -59,10 +67,11 @@ export async function lastEvents() {
 
     return await response.json();
   } catch (error) {
-    console.error("Erreur dans fetchEvents:", error);
+    console.error("Erreur dans lastEvents:", error);
     throw error;
   }
 }
+
 /**
  * Récupère un événement spécifique par son ID
  * @param {string} id - ID de l'événement
@@ -83,8 +92,7 @@ export async function fetchEventById(id) {
       );
     }
 
-    const event = await response.json();
-    return event; // Retourne directement l'événement
+    return await response.json();
   } catch (error) {
     console.error("Erreur fetchEventById:", error);
     throw error;
@@ -204,17 +212,22 @@ export async function updateEvent(id, updateData) {
   }
 }
 
+/**
+ * Récupère les tickets pour un événement
+ * @param {string|number} eventId - ID de l'événement
+ * @returns {Promise<Array>} Liste des tickets
+ */
 export async function fetchEventTickets(eventId) {
   try {
     if (!eventId) {
       throw new Error("L'ID de l'événement est manquant !");
     }
 
-    const parsedId = Number(eventId); // Convertit correctement en nombre
+    const parsedId = Number(eventId);
 
-    if (isNaN(parsedId) || !Number.isInteger(parsedId)) {
+    if (isNaN(parsedId)) {
       console.error("ID invalide reçu:", eventId, typeof eventId);
-      throw new Error("L'ID de l'événement doit être un nombre entier valide");
+      throw new Error("L'ID de l'événement doit être un nombre valide");
     }
 
     const response = await fetch(
@@ -240,6 +253,7 @@ export async function fetchEventTickets(eventId) {
 
 export default {
   fetchEvents,
+  lastEvents,
   fetchEventById,
   createEvent,
   createReservation,
