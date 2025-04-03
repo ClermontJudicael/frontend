@@ -1,38 +1,31 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
-/**
- * Récupère la liste des événements avec filtres optionnels
- * @param {Object} filters - Les filtres de recherche
- * @returns {Promise<Array>} Liste des événements
- */
-export async function fetchEvents(filters = {}) {
-    const url = new URL(`${API_BASE_URL}/api/events`);
-
-    Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-            url.searchParams.append(key, value);
-        }
-    });
+export async function fetchEvents({ filters = {}, range = [0, 8] } = {}) {
+    const url = new URL(`${API_BASE_URL}/api/events/filter/by-status`);
+    
+    // Ajoute les paramètres de requête
+    url.searchParams.append('filter', JSON.stringify({
+        ...filters,
+        status: 'published' // Toujours forcer published pour le front public
+    }));
+    url.searchParams.append('range', JSON.stringify(range));
 
     try {
-        const response = await fetch(url.toString(), {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-
+        const response = await fetch(url.toString());
+        
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || 'Échec du chargement des événements');
         }
 
-        return await response.json();
+        const events = await response.json();
+        const total = parseInt(response.headers.get('X-Total-Count') || events.length);
+        
+        return { events, total };
     } catch (error) {
         console.error('Erreur dans fetchEvents:', error);
         throw error;
     }
 }
-
 /**
  * Récupère un événement spécifique par son ID
  * @param {string} id - ID de l'événement
