@@ -130,16 +130,16 @@ const Reservations = ({ reservations, loading, refreshReservations }) => {
     <div className="space-y-8">
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl text-gray-500 font-semibold">Confirmed Reservations</h2>
+          <h2 className="text-xl text-gray-500 font-semibold">Reservation confirmées</h2>
           <button
             onClick={refreshReservations}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
           >
-            Refresh
+            Actualiser
           </button>
         </div>
         {confirmedReservations.length === 0 ? (
-          <p className="text-gray-500">No confirmed reservations.</p>
+          <p className="text-gray-500">Aucun reservation confirmée.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {confirmedReservations.map((reservation) => (
@@ -154,9 +154,9 @@ const Reservations = ({ reservations, loading, refreshReservations }) => {
       </div>
 
       <div>
-        <h2 className="text-xl text-gray-500 font-semibold mb-4">Pending Reservations</h2>
+        <h2 className="text-xl text-gray-500 font-semibold mb-4">Reservation en attentes</h2>
         {pendingReservations.length === 0 ? (
-          <p className="text-gray-500">No pending reservations.</p>
+          <p className="text-gray-500">Aucun reservation en attente.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {pendingReservations.map((reservation) => (
@@ -176,7 +176,7 @@ const Reservations = ({ reservations, loading, refreshReservations }) => {
 // Profile Component
 const Profile = ({ user }) => (
   <div className="bg-white p-6 rounded-lg shadow-md">
-    <h2 className="text-2xl font-semibold mb-4">Profile Details</h2>
+    <h2 className="text-2xl text-gray-500 font-semibold mb-4">Detail du profile</h2>
     <div className="flex items-center space-x-4">
       <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
       <div>

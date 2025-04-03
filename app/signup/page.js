@@ -32,7 +32,7 @@ export default function Inscription() {
   return (
     <div className="flex justify-center items-center h-screen bg-[#EEF2FF]">
       <div className="bg-white shadow-lg rounded-lg p-8 w-96">
-        <h2 className="text-2xl font-semibold text-center">Inscription</h2>
+        <h2 className="text-2xl text-blue-600 font-semibold text-center">Inscription</h2>
         <p className="text-gray-500 text-center mb-4">Créez un compte</p>
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
