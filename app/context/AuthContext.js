@@ -1,5 +1,4 @@
 "use client";
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
@@ -9,37 +8,47 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Ajoutez cette fonction
+  const decodeToken = (token) => {
+    try {
+      return jwtDecode(token);
+    } catch {
+      return null;
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const decodedUser = jwtDecode(token);
-        
-        // Check if the token is expired
-        if (decodedUser.exp * 1000 < Date.now()) {
-          // Remove expired token
+        const decodedUser = decodeToken(token);
+
+        if (decodedUser?.exp * 1000 < Date.now()) {
           localStorage.removeItem("token");
-          setUser(null); // Clear user state
+          setUser(null);
         } else {
-          // Set user if the token is valid
-          setUser(decodedUser); 
+          // Stockez à la fois les données décodées ET le token brut
+          setUser({
+            ...decodedUser,
+            token // Conservez le token JWT original
+          });
         }
       } catch (error) {
         console.error("Invalid token:", error);
-        localStorage.removeItem("token"); // Clear invalid token
-        setUser(null); // Clear user state
+        localStorage.removeItem("token");
+        setUser(null);
       }
-    } else {
-      setUser(null); // No token, so clear user state
     }
-    setLoading(false); // Done checking the token
+    setLoading(false);
   }, []);
-  
 
   const login = (token) => {
     localStorage.setItem("token", token);
-    const decodedUser = jwtDecode(token);
-    setUser(decodedUser);
+    const decodedUser = decodeToken(token);
+    setUser({
+      ...decodedUser,
+      token // Stockez le token complet
+    });
   };
 
   const logout = () => {
@@ -47,14 +56,29 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  if (loading) {
-    return null; // Or a loading spinner can be returned until the token is checked
-  }
+  // Ajoutez reloadAuth cohérent
+  const reloadAuth = () => {
+    const token = localStorage.getItem("token"); // Utilisez "token" partout
+    if (token) {
+      const decodedUser = decodeToken(token);
+      setUser({
+        ...decodedUser,
+        token
+      });
+    } else {
+      setUser(null);
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
+      <AuthContext.Provider value={{
+        user,
+        login,
+        logout,
+        reloadAuth // Exposez la fonction
+      }}>
+        {!loading && children}
+      </AuthContext.Provider>
   );
 }
 
