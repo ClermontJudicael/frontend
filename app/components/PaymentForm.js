@@ -19,24 +19,26 @@ export default function PaymentForm({ eventId, ticketId, quantity, onSuccess }) 
 
     const handlePayment = async () => {
         if (!clientReady) return;
-    
+
+        // 1. Vérification renforcée du token
         if (!user?.token) {
             console.error('Token manquant dans le contexte :', user);
             setError('Session expirée - Veuillez vous reconnecter');
             router.push('/login');
             return;
         }
-    
+
         setIsProcessing(true);
         setError('');
-    
+
         try {
+            // 2. Vérification manuelle de l'expiration
             const tokenPayload = JSON.parse(atob(user.token.split('.')[1]));
             if (tokenPayload.exp * 1000 < Date.now()) {
                 throw new Error('Token expiré');
             }
-    
-            // 1. Création de la réservation
+
+            // 3. Création de la réservation
             const reservationResponse = await fetch(`${API_URL}/api/reservations`, {
                 method: 'POST',
                 headers: {
@@ -50,30 +52,22 @@ export default function PaymentForm({ eventId, ticketId, quantity, onSuccess }) 
                     paymentMethod: 'credit_card'
                 })
             });
-    
-            // 2. Gestion des erreurs HTTP
+
+            // 4. Gestion des erreurs HTTP
             if (!reservationResponse.ok) {
                 const errorData = await reservationResponse.json().catch(() => ({}));
+
                 if (reservationResponse.status === 401 || reservationResponse.status === 403) {
                     await logout();
                     throw new Error(errorData.error || 'Session expirée');
                 }
                 throw new Error(errorData.message || 'Échec de la réservation');
             }
-    
-            // 3. Récupération des données de réservation
+
             const reservationData = await reservationResponse.json();
-            console.log("Reservation Data:", reservationData); // Affichez la réponse complète
-    
-            // 4. Vérifiez la structure de la réponse
-            if (!reservationData.data || !reservationData.data.id) {
-                throw new Error('Identifiant de réservation manquant');
-            }
-    
-            const reservationId = reservationData.data.id; // Récupérez l'identifiant
-    
+
             // 5. Paiement
-            const paymentResponse = await fetch(`${API_URL}/api/reservations/${reservationId}/pay`, {
+            const paymentResponse = await fetch(`${API_URL}/api/reservations/${reservationData.id}/pay`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -83,22 +77,22 @@ export default function PaymentForm({ eventId, ticketId, quantity, onSuccess }) 
                     paymentMethod: 'credit_card'
                 })
             });
-    
-            // 6. Vérifiez la réponse du paiement
+
             if (!paymentResponse.ok) {
                 throw new Error('Échec du traitement du paiement');
             }
-    
-            // 7. Redirection après succès
-            router.push(`/confirmation?reservationId=${reservationId}`);
-    
+
+            // 6. Redirection après succès
+            router.push(`/confirmation?reservationId=${reservationData.id}`);
+
         } catch (error) {
-            console.error('Erreur de paiement:', error);
-            setError(error.message.includes('Token')
-                ? 'Session expirée - Veuillez vous reconnecter'
-                : error.message
-            );
-    
+            // console.error('Erreur de paiement:', error);
+            // console.log('%cPayment confirmed', 'color: #00FF00');
+            // setError(error.message.includes('Token')
+            //     ? 'Session expirée - Veuillez vous reconnecter'
+            //     : error.message
+            // );
+
             // Nettoyage automatique en cas d'erreur d'authentification
             if (error.message.includes('expiré') || error.message.includes('authentifié')) {
                 await logout();
@@ -107,7 +101,6 @@ export default function PaymentForm({ eventId, ticketId, quantity, onSuccess }) 
             setIsProcessing(false);
         }
     };
-    
 
     if (!clientReady) {
         return <div className="max-w-md mx-auto bg-white rounded-xl shadow-md p-6 mt-8">Chargement...</div>;

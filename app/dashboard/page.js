@@ -5,21 +5,20 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 
 const menuItems = [
-  { id: "profile", label: "Profile" },
-  { id: "reservations", label: "Reservations" },
+  { id: "profile", label: "Profil" },
+  { id: "reservations", label: "Réservations" },
+  { id: "receipts", label: "Reçus" },
 ];
 
-// Loading Spinner Component
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center py-8">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
   </div>
 );
 
-// Reservation Card Component
 const ReservationCard = ({ reservation, refreshReservations }) => {
   const [isConfirming, setIsConfirming] = useState(false);
-  const eventDate = new Date(reservation.event?.date).toLocaleDateString('en-US', {
+  const eventDate = new Date(reservation.event?.date).toLocaleDateString('fr-FR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -41,11 +40,11 @@ const ReservationCard = ({ reservation, refreshReservations }) => {
         }
       );
 
-      if (!response.ok) throw new Error('Failed to confirm reservation');
-      
+      if (!response.ok) throw new Error('Échec de la confirmation');
+
       refreshReservations();
     } catch (error) {
-      console.error('Confirmation error:', error);
+      console.error('Erreur:', error);
       alert(error.message);
     } finally {
       setIsConfirming(false);
@@ -53,31 +52,26 @@ const ReservationCard = ({ reservation, refreshReservations }) => {
   };
 
   return (
-  // Dans ReservationCard
     <div className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition bg-white">
       <div className="p-4 bg-blue-50">
-        <h3 className="text-xl font-semibold text-blue-800">{reservation.event?.title || 'Event'}</h3>
-        <p className="text-sm text-gray-500">{eventDate}</p> {/* Appliquer text-gray-500 ici */}
+        <h3 className="text-xl font-semibold text-blue-800">{reservation.event?.title || 'Événement'}</h3>
+        <p className="text-sm text-gray-500">{eventDate}</p>
       </div>
-      
       <div className="p-4">
         <div className="flex justify-between mb-2">
-          <span className="font-medium text-gray-500">Ticket Type:</span> {/* Utiliser text-gray-500 */}
-          <span className="text-gray-500">{reservation.ticket?.type || 'N/A'}</span> {/* Idem */}
+          <span className="font-medium text-gray-500">Type de billet:</span>
+          <span className="text-gray-500">{reservation.ticket?.type || 'N/A'}</span>
         </div>
-        
         <div className="flex justify-between mb-2">
-          <span className="font-medium text-gray-500">Quantity:</span>
+          <span className="font-medium text-gray-500">Quantité:</span>
           <span className="text-gray-500">{reservation.quantity}</span>
         </div>
-        
         <div className="flex justify-between mb-2">
-          <span className="font-medium text-gray-500">Total Price:</span>
-          <span className="text-gray-500">${(reservation.ticket?.price * reservation.quantity).toFixed(2) || '0.00'}</span>
+          <span className="font-medium text-gray-500">Prix total:</span>
+          <span className="text-gray-500">€{(reservation.ticket?.price * reservation.quantity).toFixed(2)}</span>
         </div>
-        
         <div className="flex justify-between mb-2">
-          <span className="font-medium text-gray-500">Status:</span>
+          <span className="font-medium text-gray-500">Statut:</span>
           <span className={`px-2 py-1 rounded text-xs ${
             reservation.status === 'confirmed' 
               ? 'bg-green-100 text-green-800' 
@@ -86,10 +80,9 @@ const ReservationCard = ({ reservation, refreshReservations }) => {
             {reservation.status}
           </span>
         </div>
-        
         <div className="mt-4 pt-4 border-t">
-          <p className="text-sm text-gray-500"> {/* Utiliser text-gray-500 ici aussi */}
-            <span className="font-medium">Location:</span> {reservation.event?.location || 'Unknown'}
+          <p className="text-sm text-gray-500">
+            <span className="font-medium">Lieu:</span> {reservation.event?.location || 'Inconnu'}
           </p>
         </div>
       </div>
@@ -105,32 +98,25 @@ const ReservationCard = ({ reservation, refreshReservations }) => {
                 : 'bg-green-500 hover:bg-green-600 text-white'
             }`}
           >
-            {isConfirming ? 'Confirming...' : 'Confirm Reservation'}
+            {isConfirming ? 'Confirmation...' : 'Confirmer la réservation'}
           </button>
         </div>
       )}
     </div>
-
-
   );
 };
 
-// Reservations Component
 const Reservations = ({ reservations, loading, refreshReservations }) => {
   if (loading) return <LoadingSpinner />;
 
-  const confirmedReservations = reservations.filter(
-    (r) => r.status === "confirmed"
-  );
-  const pendingReservations = reservations.filter(
-    (r) => r.status === "pending"
-  );
+  const confirmed = reservations.filter(r => r.status === "confirmed");
+  const pending = reservations.filter(r => r.status === "pending");
 
   return (
     <div className="space-y-8">
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl text-gray-500 font-semibold">Reservation confirmées</h2>
+          <h2 className="text-xl text-gray-500 font-semibold">Réservations confirmées</h2>
           <button
             onClick={refreshReservations}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
@@ -138,33 +124,25 @@ const Reservations = ({ reservations, loading, refreshReservations }) => {
             Actualiser
           </button>
         </div>
-        {confirmedReservations.length === 0 ? (
-          <p className="text-gray-500">Aucun reservation confirmée.</p>
+        {confirmed.length === 0 ? (
+          <p className="text-gray-500">Aucune réservation confirmée.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {confirmedReservations.map((reservation) => (
-              <ReservationCard 
-                key={reservation.id} 
-                reservation={reservation}
-                refreshReservations={refreshReservations}
-              />
+            {confirmed.map((r) => (
+              <ReservationCard key={r.id} reservation={r} refreshReservations={refreshReservations} />
             ))}
           </div>
         )}
       </div>
 
       <div>
-        <h2 className="text-xl text-gray-500 font-semibold mb-4">Reservation en attentes</h2>
-        {pendingReservations.length === 0 ? (
-          <p className="text-gray-500">Aucun reservation en attente.</p>
+        <h2 className="text-xl text-gray-500 font-semibold mb-4">Réservations en attente</h2>
+        {pending.length === 0 ? (
+          <p className="text-gray-500">Aucune réservation en attente.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {pendingReservations.map((reservation) => (
-              <ReservationCard 
-                key={reservation.id} 
-                reservation={reservation}
-                refreshReservations={refreshReservations}
-              />
+            {pending.map((r) => (
+              <ReservationCard key={r.id} reservation={r} refreshReservations={refreshReservations} />
             ))}
           </div>
         )}
@@ -173,10 +151,38 @@ const Reservations = ({ reservations, loading, refreshReservations }) => {
   );
 };
 
-// Profile Component
+const Receipts = ({ receipts, loading }) => {
+  if (loading) return <LoadingSpinner />;
+
+  return (
+    <div>
+      <h2 className="text-xl text-gray-500 font-semibold mb-4">Mes reçus</h2>
+      {receipts.length === 0 ? (
+        <p className="text-gray-500">Aucun reçu trouvé.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {receipts.map((receipt) => (
+            <div key={receipt.id} className="border rounded-lg p-4 bg-white shadow-md">
+              <h3 className="text-lg font-bold text-blue-600 mb-2">Reçu #{receipt.id}</h3>
+              <p className="text-gray-600">Montant: <strong>{receipt.amount} €</strong></p>
+              <p className="text-gray-600">Méthode de paiement: {receipt.payment_method}</p>
+              <p className="text-gray-600">Statut: <span className="text-green-600">{receipt.payment_status}</span></p>
+              <p className="text-gray-600">Date: {new Date(receipt.issued_at).toLocaleString("fr-FR")}</p>
+              <div className="mt-2">
+                <p className="text-sm text-gray-400">QR Code:</p>
+                <img src={receipt.qr_code} alt="QR Code" className="w-20 h-20" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Profile = ({ user }) => (
   <div className="bg-white p-6 rounded-lg shadow-md">
-    <h2 className="text-2xl text-gray-500 font-semibold mb-4">Detail du profile</h2>
+    <h2 className="text-2xl text-gray-500 font-semibold mb-4">Détails du profil</h2>
     <div className="flex items-center space-x-4">
       <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
       <div>
@@ -187,14 +193,17 @@ const Profile = ({ user }) => (
   </div>
 );
 
-// Main Dashboard Component
 export default function Dashboard() {
   const { user } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("profile");
+
   const [reservations, setReservations] = useState([]);
   const [reservationsLoading, setReservationsLoading] = useState(false);
+
+  const [receipts, setReceipts] = useState([]);
+  const [receiptsLoading, setReceiptsLoading] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -207,43 +216,57 @@ export default function Dashboard() {
   useEffect(() => {
     if (activeTab === "reservations" && user) {
       fetchReservations();
+    } else if (activeTab === "receipts" && user) {
+      fetchReceipts();
     }
   }, [activeTab, user]);
 
   const fetchReservations = async () => {
     try {
       setReservationsLoading(true);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user-reservations/my-reservations`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          }
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user-reservations/my-reservations`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
         }
-      );
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch reservations');
-      }
-      
-      const data = await response.json();
+      });
+      if (!res.ok) throw new Error("Erreur lors du chargement des réservations");
+      const data = await res.json();
       setReservations(data);
     } catch (error) {
-      console.error('Error fetching reservations:', error);
+      console.error(error);
       setReservations([]);
     } finally {
       setReservationsLoading(false);
     }
   };
 
+  const fetchReceipts = async () => {
+    try {
+      setReceiptsLoading(true);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/receipts/user/${user.id}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!res.ok) throw new Error("Erreur lors du chargement des reçus");
+      const data = await res.json();
+      setReceipts(data);
+    } catch (error) {
+      console.error(error);
+      setReceipts([]);
+    } finally {
+      setReceiptsLoading(false);
+    }
+  };
+
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen">Chargement...</div>;
   }
 
   return (
     <div className="flex h-screen bg-[#EEF2FF]">
-      {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md p-4">
         <h1 className="text-xl font-bold mb-4 text-blue-600">Dashboard</h1>
         <nav>
@@ -261,7 +284,6 @@ export default function Dashboard() {
         </nav>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 p-6 overflow-auto">
         {activeTab === "profile" && <Profile user={user} />}
         {activeTab === "reservations" && (
@@ -269,6 +291,12 @@ export default function Dashboard() {
             reservations={reservations} 
             loading={reservationsLoading} 
             refreshReservations={fetchReservations}
+          />
+        )}
+        {activeTab === "receipts" && (
+          <Receipts 
+            receipts={receipts}
+            loading={receiptsLoading}
           />
         )}
       </main>
